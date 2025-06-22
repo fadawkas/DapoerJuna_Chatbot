@@ -94,13 +94,17 @@ def _pick(blocks: list[str], sel: str) -> str | None:
             return b
     return None
 
-def get_recipe_details(recipes: str, selection: str) -> str:
+def get_recipe_details(selection: str, recipes: str | None = None) -> str:
     """
     Ambil 1 resep dari kumpulan `recipes`.
 
     - `selection`: bisa berupa nomor (1-based) atau sebagian judul resep.
+    - Jika `recipes` tidak diberikan, akan menggunakan hasil pencarian terakhir.
     - Jika tidak ketemu, akan mengembalikan string kosong.
     """
+    from streamlit import session_state as st_session
+
+    recipes = recipes or st_session.get("last_recipes_blob", "")
     blocks = [b for b in recipes.split("\n\n") if b.strip()]
     pick = _pick(blocks, selection)
     return pick or ""
@@ -150,6 +154,6 @@ TOOLS = {
     "get_recipe_details": StructuredTool.from_function(
         func=get_recipe_details,
         name="get_recipe_details",
-        description="Ambil 1 resep dari blok resep berdasarkan nomor atau judul parsial. Cocokkan `selection` dengan salah satu judul resep atau nomor urutan dari hasil pencarian sebelumnya.",
+        description="Ambil 1 resep dari hasil pencarian sebelumnya berdasarkan nomor atau judul parsial.",
     )
 }
