@@ -84,24 +84,27 @@ def set_juna_attitude(attitude: str = "baik") -> str:
     return attitude.lower()
 
 
-def _get_recipe_details(selection: str, recipes: str | None = None) -> str:
-    """Ambil 1 resep dari blok berdasar nomor atau judul parsial."""
-    from streamlit import session_state as st_session
+def _pick(blocks: list[str], sel: str) -> str | None:
+    sel = sel.strip().lower()
+    if sel.isdigit():
+        idx = int(sel) - 1
+        return blocks[idx] if 0 <= idx < len(blocks) else None
+    for b in blocks:
+        if sel in b.lower():
+            return b
+    return None
 
-    def _pick(blocks: list[str], sel: str) -> str | None:
-        sel = sel.strip().lower()
-        if sel.isdigit():
-            idx = int(sel) - 1
-            return blocks[idx] if 0 <= idx < len(blocks) else None
-        for b in blocks:
-            if sel in b.lower():
-                return b
-        return None
+def get_recipe_details(recipes: str, selection: str) -> str:
+    """
+    Ambil 1 resep dari kumpulan `recipes`.
 
-    recipes = recipes or st_session.last_recipes_blob
+    - `selection`: bisa berupa nomor (1-based) atau sebagian judul resep.
+    - Jika tidak ketemu, akan mengembalikan string kosong.
+    """
     blocks = [b for b in recipes.split("\n\n") if b.strip()]
     pick = _pick(blocks, selection)
-    return pick or "Tidak ditemukan."
+    return pick or ""
+
 
 TOOLS = {
     "retrieve_recipe": Tool.from_function(
@@ -145,8 +148,8 @@ TOOLS = {
         description="Ubah sikap Juna ke 'baik', 'galak', atau 'random'."
     ),
     "get_recipe_details": StructuredTool.from_function(
-        func=_get_recipe_details,
+        func=get_recipe_details,
         name="get_recipe_details",
-        description="Ambil detail 1 resep dari blok berdasarkan judul atau nomor urutan."
-    ),
+        description="Ambil 1 resep dari blok resep berdasarkan nomor atau judul parsial. Cocokkan `selection` dengan salah satu judul resep atau nomor urutan dari hasil pencarian sebelumnya.",
+    )
 }
