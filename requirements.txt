@@ -1,0 +1,8 @@
+streamlit
+pandas
+langchain
+langgraph
+langchain-google-genai
+faiss-cpu
+python-dotenv
+langgraph-community
