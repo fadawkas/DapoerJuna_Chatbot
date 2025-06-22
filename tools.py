@@ -57,8 +57,11 @@ def _filter_by_difficulty(recipes: str, difficulty: str) -> str:
     diff = difficulty.lower()
     return "\n\n".join(r for r in recipes.split("\n\n") if diff in r.lower())
 
-def _filter_by_ingredients(recipes: str, ingredients: str) -> str:
+def _filter_by_ingredients(ingredients: str, recipes: str | None = None) -> str:
     """Kembalikan resep yang semua bahannya ada di input (comma-separated)."""
+    from streamlit import session_state as st_session
+    recipes = recipes or st_session.last_recipes_blob
+
     want = {i.strip().lower() for i in ingredients.split(",")}
     out = []
     for blk in recipes.split("\n\n"):
