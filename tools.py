@@ -57,9 +57,8 @@ def _filter_by_difficulty(recipes: str, difficulty: str) -> str:
     diff = difficulty.lower()
     return "\n\n".join(r for r in recipes.split("\n\n") if diff in r.lower())
 
-@tool
-def filter_by_ingredients(recipes: str, ingredients: str) -> str:
-    """Kembalikan resep yang semua bahannya ada di input."""
+def _filter_by_ingredients(recipes: str, ingredients: str) -> str:
+    """Kembalikan resep yang semua bahannya ada di input (comma-separated)."""
     want = {i.strip().lower() for i in ingredients.split(",")}
     out = []
     for blk in recipes.split("\n\n"):
@@ -67,7 +66,7 @@ def filter_by_ingredients(recipes: str, ingredients: str) -> str:
         have = {i.strip().lower() for i in m.group(1).split(",")} if m else set()
         if want.issubset(have):
             out.append(blk)
-    return "\n\n".join(out) 
+    return "\n\n".join(out)
 
 def get_most_loved(dummy: str = "") -> str:
     """
@@ -127,8 +126,8 @@ TOOLS = {
         name="filter_by_difficulty",
         description="Filter blok resep berdasarkan tingkat kesulitan: 'mudah', 'sedang', 'cukup rumit', atau 'sulit'."
     ),
-    "filter_by_ingredients": Tool.from_function(
-        func=filter_by_ingredients,
+    "filter_by_ingredients": StructuredTool.from_function(
+        func=_filter_by_ingredients,
         name="filter_by_ingredients",
         description="Filter resep yang semua bahannya ada dalam daftar bahan pengguna."
     ),
